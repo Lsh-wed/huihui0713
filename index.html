@@ -12,20 +12,55 @@
         }
 
         body {
-            background: linear-gradient(135deg, #fff0f6, #ffe4e8);
-            font-family: 'Microsoft YaHei', sans-serif;
+            position: relative;
+            background: linear-gradient(135deg, #fff0f6 0%, #ffe4e8 100%);
             min-height: 100vh;
             margin: 0;
             padding: 20px;
+            overflow-x: hidden;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255,105,180,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255,179,193,0.1) 0%, transparent 50%);
+            animation: gradientFlow 18s linear infinite;
+            z-index: 0;
+            will-change: transform;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: url('data:image/svg+xml,<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 3.8C8.4-0.2 0 0 0 7c0 5 10 13 10 13s10-8 10-13c0-7-8.4-7.2-10-3.2z" fill="%23ff69b4" opacity="0.1"/></svg>');
+            opacity: 0.3;
+            animation: particleMove 80s linear infinite;
+            z-index: 0;
         }
 
         .container {
+            position: relative;
             max-width: 1200px;
             margin: 2rem auto;
             padding: 40px;
-            background: rgba(255,255,255,0.97);
+            background: rgba(255,255,255,0.95);
             border-radius: 30px;
             box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            z-index: 1;
+            transform: translateZ(0);
+            animation: containerEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
 
         .magic-title {
@@ -53,6 +88,8 @@
             transition: all 0.3s;
             position: relative;
             overflow: hidden;
+            transform: translateZ(0);
+            animation: cardEntrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
 
         .memory-card::before {
@@ -83,6 +120,8 @@
             height: 600px;
             object-fit: cover;
             transition: transform 0.8s;
+            animation: imageZoom 20s infinite alternate;
+            transform-origin: center center;
         }
 
         .image-caption {
@@ -94,20 +133,7 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             opacity: 0;
             transition: opacity 0.5s;
-        }
-
-        .music-portal {
-            margin: 4rem auto;
-            width: fit-content;
-            border-radius: 20px;
-            background: white;
-            padding: 20px;
-            box-shadow: var(--shadow);
-        }
-
-        @keyframes titleGlow {
-            0% { text-shadow: 0 0 10px var(--primary); }
-            100% { text-shadow: 0 0 20px var(--secondary); }
+            animation: captionSlide 1.2s ease-out 0.5s both;
         }
 
         .days-counter {
@@ -117,6 +143,7 @@
             background: rgba(255,105,180,0.1);
             border-radius: 15px;
             position: relative;
+            animation: scaleIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
 
         .days-counter span {
@@ -126,13 +153,58 @@
             text-shadow: 0 2px 4px rgba(255,105,180,0.2);
         }
 
+        @keyframes gradientFlow {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-3%, 3%); }
+            50% { transform: translate(3%, -3%); }
+            75% { transform: translate(-2%, 2%); }
+            100% { transform: translate(0, 0); }
+        }
+
+        @keyframes particleMove {
+            from { transform: rotate(0deg) translate(0, 0); }
+            to { transform: rotate(360deg) translate(100px, 100px); }
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 10px var(--primary); }
+            100% { text-shadow: 0 0 20px var(--secondary); }
+        }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: none; }
+        }
+
+        @keyframes imageZoom {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        @keyframes captionSlide {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: none; }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes containerEntrance {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: none; }
+        }
+
         @media (max-width: 768px) {
-            .love-image {
-                height: 300px;
-            }
-            .days-counter span {
-                font-size: 1.8rem;
-            }
+            .container { padding: 20px; }
+            .love-image { height: 300px; }
+            .magic-title { font-size: 2.2rem; }
+            .days-counter span { font-size: 1.8rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation: none !important; transition: none !important; }
         }
     </style>
 </head>
@@ -146,21 +218,21 @@
         <h1 class="magic-title">✨ 与慧慧的甜蜜记忆 ✨</h1>
 
         <div class="memory-grid">
-            <div class="memory-card">
+            <div class="memory-card" style="animation-delay: 0.2s">
                 <div class="card-content">
                     <h3>💞 在一起的日子 💞</h3>
                     <p class="date">2024.05.23</p>
                     <p class="desc">从此刻起，我们的故事正式开始</p>
                 </div>
             </div>
-            <div class="memory-card">
+            <div class="memory-card" style="animation-delay: 0.4s">
                 <div class="card-content">
                     <h3>🌸 初次约会 🌸</h3>
                     <p class="date">2025.04.30</p>
                     <p class="desc">在校门口记得我们第一次并肩的身影</p>
                 </div>
             </div>
-            <div class="memory-card">
+            <div class="memory-card" style="animation-delay: 0.6s">
                 <div class="card-content">
                     <h3>🌹 爱的告白 🌹</h3>
                     <p class="date">2025.05.20</p>
@@ -179,30 +251,20 @@
                 "从指尖到心底<br>都是你的温度"
             </div>
         </div>
-
-        <div class="music-portal">
-            <iframe
-                frameborder="no"
-                allow="autoplay"
-                marginwidth="0"
-                marginheight="0"
-                width="380"
-                height="110"
-                src="https://music.163.com/outchain/player?type=2&id=2676045511&auto=1&height=66">
-            </iframe>
-        </div>
     </div>
 
     <script>
-        document.querySelectorAll('.memory-card').forEach(card => {
+        document.querySelectorAll('.memory-card').forEach((card, index) => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                
                 card.style.transform = `
                     perspective(1000px)
-                    rotateX(${(y - rect.height/2)/10}deg)
-                    rotateY(${-(x - rect.width/2)/10}deg)
+                    rotateX(${y * 8}deg)
+                    rotateY(${-x * 8}deg)
+                    scale3d(1.03, 1.03, 1.03)
                 `;
             });
 
@@ -212,32 +274,33 @@
         });
 
         function calculateLoveDays() {
-            const startDate = new Date('2024-05-23');
-            const currentDate = new Date();
-            const timeDiff = currentDate - startDate;
-            return Math.floor(timeDiff / (1000 * 3600 * 24));
+            return Math.floor((Date.now() - new Date('2024-05-23')) / 86400000);
         }
 
-        function updateDaysCounter() {
+        function updateCounter() {
             const days = calculateLoveDays();
-            document.getElementById('daysCounter').textContent = days;
-        }
-
-        function initMusic() {
-            const iframe = document.querySelector('iframe');
-            const playMusic = () => {
-                iframe.contentWindow.postMessage('play', '*');
-                document.removeEventListener('click', playMusic);
-                document.removeEventListener('touchstart', playMusic);
+            const counter = document.getElementById('daysCounter');
+            
+            if (counter.textContent !== days.toString()) {
+                counter.style.animation = 'none';
+                void counter.offsetWidth;
+                counter.style.animation = 'numberPop 0.6s ease';
+                counter.textContent = days;
             }
-            document.addEventListener('click', playMusic);
-            document.addEventListener('touchstart', playMusic);
+            requestAnimationFrame(updateCounter);
         }
 
-        window.addEventListener('load', () => {
-            updateDaysCounter();
-            initMusic();
-            setInterval(updateDaysCounter, 86400000);
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes numberPop {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.25); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateCounter();
         });
     </script>
 </body>
