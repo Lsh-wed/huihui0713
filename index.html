@@ -302,7 +302,7 @@
     <div class="container">
         <div class="days-counter">
             <p>我们已携手走过 <span id="daysCounter">0</span> 天</p>
-            <small>自2024年5月23日的特别日子</small>
+            <small>自2024年5月23日的美好开始</small>
         </div>
 
         <h1 class="magic-title">✨ 与慧慧的甜蜜记忆 ✨</h1>
@@ -361,20 +361,44 @@
             });
         });
 
-        // 天数计算功能
-        function updateDays() {
-            const startDay = new Date('2024-05-23');
-            const currentDay = new Date();
-            const diffTime = currentDay - startDay;
-            const days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            document.getElementById('daysCounter').textContent = days;
+        // 修正后的天数计算（起始日不包含）
+        function calculateDays() {
+            const createLocalDate = (y, m, d) => {
+                const date = new Date(y, m, d);
+                date.setHours(0, 0, 0, 0);
+                return date;
+            };
+
+            const startDay = createLocalDate(2024, 4, 23); // 5月=4
+            const currentDay = createLocalDate(
+                new Date().getFullYear(),
+                new Date().getMonth(),
+                new Date().getDate()
+            );
+
+            const timeDiff = currentDay - startDay;
+            const daysPassed = Math.floor(timeDiff / 86400000);
+
+            document.getElementById('daysCounter').textContent = 
+                daysPassed > 0 ? daysPassed : 0;
+        }
+
+        // 自动更新逻辑
+        function setupDayCounter() {
+            calculateDays();
+            
+            // 计算到下次午夜的时间
+            const now = new Date();
+            const msToMidnight = 86400000 - (now % 86400000);
+            
+            setTimeout(() => {
+                calculateDays();
+                setInterval(calculateDays, 86400000);
+            }, msToMidnight + 1000); // 额外1秒确保跨日
         }
 
         // 初始化
-        window.addEventListener('DOMContentLoaded', () => {
-            updateDays();
-            setInterval(updateDays, 60000);
-        });
+        window.addEventListener('DOMContentLoaded', setupDayCounter);
     </script>
 </body>
 </html>
