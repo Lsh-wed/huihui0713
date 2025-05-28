@@ -182,34 +182,21 @@
             border-radius: 25px;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 0.3s;
         }
 
         .love-image {
             width: 100%;
             height: 600px;
             object-fit: cover;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: transform 0.4s ease, filter 0.3s ease;
             transform-origin: center;
             border-radius: 25px;
-            cursor: zoom-in;
         }
 
-        .love-moment:hover .love-image:not(.zoomed) {
+        .love-moment:hover .love-image,
+        .love-image:active {
             transform: scale(1.05);
             filter: brightness(1.05);
-        }
-
-        .love-image.zoomed {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(1.8);
-            z-index: 1000;
-            max-width: 90%;
-            max-height: 90%;
-            box-shadow: 0 0 40px rgba(0,0,0,0.3);
-            cursor: zoom-out;
         }
 
         .image-caption {
@@ -224,22 +211,10 @@
             z-index: 2;
         }
 
-        .love-moment:hover .image-caption,
-        .love-image.zoomed + .image-caption {
+        .love-moment:hover .image-caption {
             opacity: 1;
             transform: translateY(-10px);
             text-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 999;
-            display: none;
         }
 
         .days-counter {
@@ -311,14 +286,14 @@
                 height: 300px;
             }
             
-            .love-image.zoomed {
-                transform: translate(-50%, -50%) scale(1.2);
-            }
-            
             .image-caption {
                 font-size: 1.5rem;
                 bottom: 1rem;
                 left: 1rem;
+            }
+
+            .love-image:active {
+                transform: scale(1.03);
             }
         }
     </style>
@@ -368,35 +343,7 @@
         </div>
     </div>
 
-    <div class="overlay"></div>
-
     <script>
-        // 图片交互功能
-        const loveImage = document.querySelector('.love-image');
-        const overlay = document.querySelector('.overlay');
-        const originalCaption = document.querySelector('.image-caption');
-
-        // 处理缩放状态
-        function toggleZoom() {
-            const isZoomed = loveImage.classList.toggle('zoomed');
-            document.body.style.overflow = isZoomed ? 'hidden' : '';
-            overlay.style.display = isZoomed ? 'block' : 'none';
-        }
-
-        // 点击事件
-        loveImage.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleZoom();
-        });
-
-        // 关闭功能
-        overlay.addEventListener('click', toggleZoom);
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && loveImage.classList.contains('zoomed')) {
-                toggleZoom();
-            }
-        });
-
         // 卡片交互功能
         document.querySelectorAll('.memory-card').forEach(card => {
             card.addEventListener('click', function() {
@@ -428,11 +375,6 @@
             updateDays();
             setInterval(updateDays, 60000);
         });
-
-        // 移动端适配
-        if (!window.matchMedia("(hover: hover)").matches) {
-            loveImage.style.cursor = 'pointer';
-        }
     </script>
 </body>
 </html>
