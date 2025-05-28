@@ -182,18 +182,34 @@
             border-radius: 25px;
             overflow: hidden;
             cursor: pointer;
+            transition: transform 0.3s;
         }
 
         .love-image {
             width: 100%;
             height: 600px;
             object-fit: cover;
-            transition: transform 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform-origin: center;
             border-radius: 25px;
+            cursor: zoom-in;
         }
 
-        .love-image:hover {
-            transform: scale(1.02);
+        .love-moment:hover .love-image:not(.zoomed) {
+            transform: scale(1.05);
+            filter: brightness(1.05);
+        }
+
+        .love-image.zoomed {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1.8);
+            z-index: 1000;
+            max-width: 90%;
+            max-height: 90%;
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+            cursor: zoom-out;
         }
 
         .image-caption {
@@ -203,12 +219,27 @@
             color: white;
             font-size: 2rem;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            z-index: 2;
         }
 
-        .love-moment:hover .image-caption {
+        .love-moment:hover .image-caption,
+        .love-image.zoomed + .image-caption {
             opacity: 1;
+            transform: translateY(-10px);
+            text-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 999;
+            display: none;
         }
 
         .days-counter {
@@ -247,23 +278,9 @@
             to { opacity: 1; transform: none; }
         }
 
-        @keyframes captionSlide {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: none; }
-        }
-
         @keyframes borderFlow {
-            0% { 
-                background-position: 0% 50%;
-                opacity: 0.8;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% { 
-                background-position: 200% 50%;
-                opacity: 0.8;
-            }
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
         }
 
         @keyframes particleSpark {
@@ -294,14 +311,14 @@
                 height: 300px;
             }
             
+            .love-image.zoomed {
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            
             .image-caption {
                 font-size: 1.5rem;
                 bottom: 1rem;
                 left: 1rem;
-            }
-            
-            .memory-card:active {
-                background: rgba(255,105,180,0.05);
             }
         }
     </style>
@@ -310,7 +327,7 @@
     <div class="container">
         <div class="days-counter">
             <p>我们已携手走过 <span id="daysCounter">0</span> 天</p>
-            <small>来自2024年5月23日的特别日子</small>
+            <small>自2024年5月23日的特别日子</small>
         </div>
 
         <h1 class="magic-title">✨ 与慧慧的甜蜜记忆 ✨</h1>
@@ -351,7 +368,36 @@
         </div>
     </div>
 
+    <div class="overlay"></div>
+
     <script>
+        // 图片交互功能
+        const loveImage = document.querySelector('.love-image');
+        const overlay = document.querySelector('.overlay');
+        const originalCaption = document.querySelector('.image-caption');
+
+        // 处理缩放状态
+        function toggleZoom() {
+            const isZoomed = loveImage.classList.toggle('zoomed');
+            document.body.style.overflow = isZoomed ? 'hidden' : '';
+            overlay.style.display = isZoomed ? 'block' : 'none';
+        }
+
+        // 点击事件
+        loveImage.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleZoom();
+        });
+
+        // 关闭功能
+        overlay.addEventListener('click', toggleZoom);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && loveImage.classList.contains('zoomed')) {
+                toggleZoom();
+            }
+        });
+
+        // 卡片交互功能
         document.querySelectorAll('.memory-card').forEach(card => {
             card.addEventListener('click', function() {
                 this.classList.toggle('active');
@@ -363,30 +409,30 @@
 
             card.addEventListener('mouseup', () => {
                 if (!card.classList.contains('active')) {
-                    card.style.transform = 'none';
+                    card.style.transform = '';
                 }
             });
         });
 
+        // 天数计算功能
         function updateDays() {
-            const start = new Date('2024-05-23');
-            const now = new Date();
-            
-            // 标准化时间为当日00:00:00
-            start.setHours(0, 0, 0, 0);
-            now.setHours(0, 0, 0, 0);
-            
-            // 计算精确天数差
-            const diffTime = now - start;
+            const startDay = new Date('2024-05-23');
+            const currentDay = new Date();
+            const diffTime = currentDay - startDay;
             const days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
             document.getElementById('daysCounter').textContent = days;
         }
 
+        // 初始化
         window.addEventListener('DOMContentLoaded', () => {
             updateDays();
             setInterval(updateDays, 60000);
         });
+
+        // 移动端适配
+        if (!window.matchMedia("(hover: hover)").matches) {
+            loveImage.style.cursor = 'pointer';
+        }
     </script>
 </body>
 </html>
