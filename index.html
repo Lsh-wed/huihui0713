@@ -9,6 +9,7 @@
             --primary: #ff69b4;
             --secondary: #ffb3c1;
             --shadow: 0 10px 30px rgba(255,105,180,0.15);
+            --border-size: 4px;
         }
 
         body {
@@ -33,7 +34,6 @@
                 radial-gradient(circle at 80% 70%, rgba(255,179,193,0.1) 0%, transparent 50%);
             animation: gradientFlow 18s linear infinite;
             z-index: 0;
-            will-change: transform;
         }
 
         body::after {
@@ -59,18 +59,21 @@
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
             z-index: 1;
-            transform: translateZ(0);
             animation: containerEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
 
         .magic-title {
             text-align: center;
-            font-size: 3rem;
+            font-size: 2.4rem;
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             animation: titleGlow 2s infinite alternate;
+            padding: 0 15px;
+            line-height: 1.3;
+            white-space: nowrap;
+            perspective: 1000px;
         }
 
         .memory-grid {
@@ -82,29 +85,95 @@
 
         .memory-card {
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 20px;
             text-align: center;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
             overflow: hidden;
-            transform: translateZ(0);
-            animation: cardEntrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+            cursor: pointer;
+            --border-size: 4px;
         }
 
-        .memory-card::before {
+        .memory-card::after {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, 
-                rgba(255,105,180,0.1) 0%, 
-                rgba(255,179,193,0.2) 100%
-            );
-            transform: rotate(45deg);
-            z-index: 0;
+            inset: calc(-1 * var(--border-size));
+            border-radius: 22px;
+            padding: var(--border-size);
+            background: linear-gradient(45deg, #ff69b4, #ff85c0, #ffb3c1);
+            -webkit-mask: 
+                linear-gradient(#000 0 0) content-box, 
+                linear-gradient(#000 0 0);
+            mask: 
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            mask-composite: exclude;
+            opacity: 0.4;
+            transition: opacity 0.3s;
+        }
+
+        .memory-card:hover::after {
+            opacity: 1;
+            animation: borderFlow 2s linear infinite, particleSpark 1.5s ease-in-out infinite;
+        }
+
+        .memory-card:active {
+            transform: scale(0.96) !important;
+            filter: brightness(0.98);
+        }
+
+        .card-content {
+            position: relative;
+            padding-bottom: 30px;
+        }
+
+        .card-content h3 {
+            margin: 0 0 15px;
+            transition: all 0.3s ease;
+        }
+
+        .date {
+            font-size: 1.1rem;
+            color: #666;
+            margin: 10px 0;
+            opacity: 0.8;
+        }
+
+        .desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+        }
+
+        .memory-card.active .desc {
+            max-height: 100px;
+            opacity: 1;
+            margin-top: 15px;
+        }
+
+        .card-content::after {
+            content: '↓';
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--primary);
+            font-size: 1.4rem;
+            opacity: 0.6;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .memory-card.active .card-content::after {
+            content: '↑';
+            bottom: 5px;
+            top: auto;
+            left: calc(100% - 35px);
+            transform: none;
+            opacity: 0.8;
         }
 
         .love-moment {
@@ -112,16 +181,19 @@
             margin: 4rem 0;
             border-radius: 25px;
             overflow: hidden;
-            transform-style: preserve-3d;
+            cursor: pointer;
         }
 
         .love-image {
             width: 100%;
             height: 600px;
             object-fit: cover;
-            transition: transform 0.8s;
-            animation: imageZoom 20s infinite alternate;
-            transform-origin: center center;
+            transition: transform 0.3s ease;
+            border-radius: 25px;
+        }
+
+        .love-image:hover {
+            transform: scale(1.02);
         }
 
         .image-caption {
@@ -129,11 +201,14 @@
             bottom: 2rem;
             left: 2rem;
             color: white;
-            font-size: 2.5rem;
+            font-size: 2rem;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             opacity: 0;
-            transition: opacity 0.5s;
-            animation: captionSlide 1.2s ease-out 0.5s both;
+            transition: opacity 0.3s ease;
+        }
+
+        .love-moment:hover .image-caption {
+            opacity: 1;
         }
 
         .days-counter {
@@ -142,53 +217,29 @@
             padding: 20px;
             background: rgba(255,105,180,0.1);
             border-radius: 15px;
-            position: relative;
-            animation: scaleIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
 
         .days-counter span {
-            font-size: 2.2rem;
+            font-size: 2rem;
             color: var(--primary);
             font-weight: bold;
-            text-shadow: 0 2px 4px rgba(255,105,180,0.2);
         }
 
         @keyframes gradientFlow {
             0% { transform: translate(0, 0); }
-            25% { transform: translate(-3%, 3%); }
-            50% { transform: translate(3%, -3%); }
-            75% { transform: translate(-2%, 2%); }
+            33% { transform: translate(-2%, 3%); }
+            66% { transform: translate(3%, -2%); }
             100% { transform: translate(0, 0); }
         }
 
         @keyframes particleMove {
-            from { transform: rotate(0deg) translate(0, 0); }
-            to { transform: rotate(360deg) translate(100px, 100px); }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         @keyframes titleGlow {
-            0% { text-shadow: 0 0 10px var(--primary); }
-            100% { text-shadow: 0 0 20px var(--secondary); }
-        }
-
-        @keyframes cardEntrance {
-            from { opacity: 0; transform: translateY(30px) scale(0.95); }
-            to { opacity: 1; transform: none; }
-        }
-
-        @keyframes imageZoom {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-        }
-
-        @keyframes captionSlide {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: none; }
-        }
-
-        @keyframes scaleIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            0% { text-shadow: 0 0 8px var(--primary); }
+            100% { text-shadow: 0 0 16px var(--secondary); }
         }
 
         @keyframes containerEntrance {
@@ -196,15 +247,62 @@
             to { opacity: 1; transform: none; }
         }
 
-        @media (max-width: 768px) {
-            .container { padding: 20px; }
-            .love-image { height: 300px; }
-            .magic-title { font-size: 2.2rem; }
-            .days-counter span { font-size: 1.8rem; }
+        @keyframes captionSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: none; }
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            * { animation: none !important; transition: none !important; }
+        @keyframes borderFlow {
+            0% { 
+                background-position: 0% 50%;
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% { 
+                background-position: 200% 50%;
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes particleSpark {
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(255,105,180,0.5)); }
+            50% { filter: drop-shadow(0 0 6px rgba(255,179,193,0.8)); }
+        }
+
+        @media (hover: hover) {
+            .memory-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 30px rgba(255,105,180,0.25);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .magic-title {
+                font-size: 1.8rem;
+                white-space: normal;
+                line-height: 1.4;
+            }
+            
+            .container {
+                padding: 20px;
+                margin: 1rem auto;
+            }
+            
+            .love-image {
+                height: 300px;
+            }
+            
+            .image-caption {
+                font-size: 1.5rem;
+                bottom: 1rem;
+                left: 1rem;
+            }
+            
+            .memory-card:active {
+                background: rgba(255,105,180,0.05);
+            }
         }
     </style>
 </head>
@@ -212,27 +310,27 @@
     <div class="container">
         <div class="days-counter">
             <p>我们已携手走过 <span id="daysCounter">0</span> 天</p>
-            <small>自2024年5月23日的特别日子</small>
+            <small>来自2024年5月23日的特别日子</small>
         </div>
 
         <h1 class="magic-title">✨ 与慧慧的甜蜜记忆 ✨</h1>
 
         <div class="memory-grid">
-            <div class="memory-card" style="animation-delay: 0.2s">
+            <div class="memory-card">
                 <div class="card-content">
                     <h3>💞 在一起的日子 💞</h3>
                     <p class="date">2024.05.23</p>
                     <p class="desc">从此刻起，我们的故事正式开始</p>
                 </div>
             </div>
-            <div class="memory-card" style="animation-delay: 0.4s">
+            <div class="memory-card">
                 <div class="card-content">
                     <h3>🌸 初次约会 🌸</h3>
                     <p class="date">2025.04.30</p>
                     <p class="desc">在校门口记得我们第一次并肩的身影</p>
                 </div>
             </div>
-            <div class="memory-card" style="animation-delay: 0.6s">
+            <div class="memory-card">
                 <div class="card-content">
                     <h3>🌹 爱的告白 🌹</h3>
                     <p class="date">2025.05.20</p>
@@ -254,53 +352,40 @@
     </div>
 
     <script>
-        document.querySelectorAll('.memory-card').forEach((card, index) => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / rect.width - 0.5;
-                const y = (e.clientY - rect.top) / rect.height - 0.5;
-                
-                card.style.transform = `
-                    perspective(1000px)
-                    rotateX(${y * 8}deg)
-                    rotateY(${-x * 8}deg)
-                    scale3d(1.03, 1.03, 1.03)
-                `;
+        document.querySelectorAll('.memory-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.classList.toggle('active');
             });
 
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'none';
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.96)';
+            });
+
+            card.addEventListener('mouseup', () => {
+                if (!card.classList.contains('active')) {
+                    card.style.transform = 'none';
+                }
             });
         });
 
-        function calculateLoveDays() {
-            return Math.floor((Date.now() - new Date('2024-05-23')) / 86400000);
-        }
-
-        function updateCounter() {
-            const days = calculateLoveDays();
-            const counter = document.getElementById('daysCounter');
+        function updateDays() {
+            const start = new Date('2024-05-23');
+            const now = new Date();
             
-            if (counter.textContent !== days.toString()) {
-                counter.style.animation = 'none';
-                void counter.offsetWidth;
-                counter.style.animation = 'numberPop 0.6s ease';
-                counter.textContent = days;
-            }
-            requestAnimationFrame(updateCounter);
+            // 标准化时间为当日00:00:00
+            start.setHours(0, 0, 0, 0);
+            now.setHours(0, 0, 0, 0);
+            
+            // 计算精确天数差
+            const diffTime = now - start;
+            const days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('daysCounter').textContent = days;
         }
-
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes numberPop {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.25); }
-            }
-        `;
-        document.head.appendChild(style);
 
         window.addEventListener('DOMContentLoaded', () => {
-            updateCounter();
+            updateDays();
+            setInterval(updateDays, 60000);
         });
     </script>
 </body>
