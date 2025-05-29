@@ -231,30 +231,124 @@
             font-weight: bold;
         }
 
-        /* 新增音乐播放器样式 */
-        .music-player {
-            width: 80%;
-            max-width: 500px;
-            margin: 30px auto;
-            border-radius: 30px;
-            background: rgba(255,255,255,0.9);
+        /* 音乐播放器样式 */
+        #music-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .music-ball {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
             box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #music-panel {
+            width: 280px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #music-panel.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .album-cover {
+            width: 140px;
+            height: 140px;
+            border-radius: 12px;
+            margin: 0 auto 15px;
             overflow: hidden;
             position: relative;
-            z-index: 1;
+            box-shadow: var(--shadow);
         }
 
-        .music-player audio {
-            width: 100%;
-            outline: none;
+        .song-info {
+            text-align: center;
+            margin-bottom: 15px;
         }
 
-        .music-player::-webkit-media-controls-panel {
+        .song-title {
+            font-size: 16px;
+            color: var(--primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 600;
+        }
+
+        .progress-wrapper {
+            margin: 15px 0;
+        }
+
+        .progress-container {
+            height: 4px;
+            background: rgba(255,105,180,0.15);
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--secondary);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
             background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
         }
 
-        .music-player::-webkit-media-controls-play-button {
-            filter: brightness(0) invert(1);
+        .control-btn:active {
+            transform: scale(0.92);
+            opacity: 0.9;
         }
 
         @keyframes gradientFlow {
@@ -289,13 +383,6 @@
             50% { filter: drop-shadow(0 0 6px rgba(255,179,193,0.8)); }
         }
 
-        @media (hover: hover) {
-            .memory-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 12px 30px rgba(255,105,180,0.25);
-            }
-        }
-
         @media (max-width: 768px) {
             .magic-title {
                 font-size: 1.8rem;
@@ -318,13 +405,14 @@
                 left: 1rem;
             }
 
-            .music-player {
-                width: 90%;
-                margin: 20px auto;
+            #music-panel {
+                width: 260px;
+                padding: 15px;
             }
 
-            .love-image:active {
-                transform: scale(1.03);
+            .album-cover {
+                width: 120px;
+                height: 120px;
             }
         }
     </style>
@@ -334,14 +422,6 @@
         <div class="days-counter">
             <p>我们已携手走过 <span id="daysCounter">0</span> 天</p>
             <small>自2024年5月23日的美好开始</small>
-        </div>
-
-        <!-- 新增的音乐播放器 -->
-        <div class="music-player">
-            <audio controls>
-                <source src="https://dlink.host/musics/aHR0cHM6Ly9vbmVkcnYtbXkuc2hhcmVwb2ludC5jb20vOnU6L2cvcGVyc29uYWwvc3Rvcl9vbmVkcnZfb25taWNyb3NvZnRfY29tL0VaM0pYc1hSNkhSUHVqTVJBbDBQV2x3QnhLVDFqX1pkV2ZuR3AyVV9pb0wwZ0E.mp3" type="audio/mpeg">
-                您的浏览器不支持音频播放
-            </audio>
         </div>
 
         <h1 class="magic-title">✨ 与慧慧的甜蜜记忆 ✨</h1>
@@ -382,7 +462,34 @@
         </div>
     </div>
 
+    <div id="music-container">
+        <div class="music-ball">▶</div>
+        <div id="music-panel">
+            <div class="album-cover">
+                <img src="https://p3.music.126.net/zNdiECjTFkKoZIObqDqzWQ==/109951168870199828.jpg?param=320y320" 
+                     alt="专辑封面" 
+                     id="album-cover">
+            </div>
+            <div class="song-info">
+                <div class="song-title">有我呢 - 郭一凡</div>
+            </div>
+            <div class="progress-wrapper">
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                </div>
+                <div class="time-display">
+                    <span id="current-time">0:00</span>
+                    <span id="duration">4:34</span>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" id="play-btn">▶</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // 纪念页面脚本
         document.querySelectorAll('.memory-card').forEach(card => {
             card.addEventListener('click', function() {
                 this.classList.toggle('active');
@@ -422,10 +529,7 @@
 
         function setupDayCounter() {
             calculateDays();
-            
-            const now = new Date();
-            const msToMidnight = 86400000 - (now % 86400000);
-            
+            const msToMidnight = 86400000 - (new Date() % 86400000);
             setTimeout(() => {
                 calculateDays();
                 setInterval(calculateDays, 86400000);
@@ -433,6 +537,114 @@
         }
 
         window.addEventListener('DOMContentLoaded', setupDayCounter);
+
+        // 音乐播放器脚本
+        class MusicPlayer {
+            constructor() {
+                this.audio = new Audio();
+                this.isDragging = false;
+                this.init();
+            }
+
+            init() {
+                this.cacheDOM();
+                this.bindEvents();
+                this.loadSong();
+            }
+
+            cacheDOM() {
+                this.dom = {
+                    ball: document.querySelector('.music-ball'),
+                    panel: document.querySelector('#music-panel'),
+                    playBtn: document.querySelector('#play-btn'),
+                    progressBar: document.querySelector('.progress-bar'),
+                    progressContainer: document.querySelector('.progress-container'),
+                    currentTime: document.querySelector('#current-time'),
+                    duration: document.querySelector('#duration'),
+                    cover: document.querySelector('#album-cover')
+                };
+            }
+
+            bindEvents() {
+                this.dom.ball.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.togglePanel();
+                });
+
+                this.dom.playBtn.addEventListener('click', () => this.togglePlay());
+                
+                this.dom.progressContainer.addEventListener('mousedown', (e) => this.startDrag(e));
+                document.addEventListener('mousemove', (e) => this.handleDrag(e));
+                document.addEventListener('mouseup', () => this.endDrag());
+
+                this.audio.addEventListener('timeupdate', () => this.updateProgress());
+                this.audio.addEventListener('play', () => this.updatePlayState(true));
+                this.audio.addEventListener('pause', () => this.updatePlayState(false));
+                this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
+            }
+
+            togglePanel() {
+                this.dom.panel.classList.toggle('show');
+            }
+
+            togglePlay() {
+                this.audio.paused ? this.audio.play() : this.audio.pause();
+            }
+
+            loadSong() {
+                this.audio.src = 'https://dlink.host/musics/aHR0cHM6Ly9vbmVkcnYtbXkuc2hhcmVwb2ludC5jb20vOnU6L2cvcGVyc29uYWwvc3Rvcl9vbmVkcnZfb25taWNyb3NvZnRfY29tL0VaM0pYc1hSNkhSUHVqTVJBbDBQV2x3QnhLVDFqX1pkV2ZuR3AyVV9pb0wwZ0E.mp3';
+                this.dom.duration.textContent = '4:34';
+            }
+
+            updateProgress() {
+                if (!this.isDragging && this.audio.duration) {
+                    const current = this.audio.currentTime;
+                    this.dom.currentTime.textContent = this.formatTime(current);
+                    const progress = (current / this.audio.duration) * 100;
+                    this.dom.progressBar.style.width = `${progress}%`;
+                }
+            }
+
+            updateDuration() {
+                if (this.audio.duration) {
+                    this.dom.duration.textContent = this.formatTime(this.audio.duration);
+                }
+            }
+
+            startDrag(e) {
+                this.isDragging = true;
+                this.handleDrag(e);
+            }
+
+            handleDrag(e) {
+                if (!this.isDragging) return;
+                const rect = this.dom.progressContainer.getBoundingClientRect();
+                let percent = (e.clientX - rect.left) / rect.width;
+                percent = Math.max(0, Math.min(1, percent));
+                
+                const currentTime = percent * this.audio.duration;
+                this.audio.currentTime = currentTime;
+                this.dom.currentTime.textContent = this.formatTime(currentTime);
+                this.dom.progressBar.style.width = `${percent * 100}%`;
+            }
+
+            endDrag() {
+                this.isDragging = false;
+            }
+
+            formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            updatePlayState(playing) {
+                this.dom.ball.textContent = playing ? '⏸' : '▶';
+                this.dom.playBtn.textContent = playing ? '⏸' : '▶';
+            }
+        }
+
+        new MusicPlayer();
     </script>
 </body>
 </html>
